@@ -1,0 +1,47 @@
+{
+  "name": "treasurix-checkout-sdk",
+  "version": "0.1.2",
+  "description": "Server-side Treasurix checkout client — payment links authenticated with your dashboard API key; settlements accrue to your treasury pool.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/treasurix/treasurix-infra.git",
+    "directory": "packages/treasurix-checkout-sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/treasurix/treasurix-infra/issues"
+  },
+  "homepage": "https://github.com/treasurix/treasurix-infra/tree/main/packages/treasurix-checkout-sdk#readme",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "keywords": [
+    "treasurix",
+    "checkout",
+    "solana",
+    "cloak",
+    "payments"
+  ]
+}

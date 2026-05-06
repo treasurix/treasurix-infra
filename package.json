@@ -1,0 +1,21 @@
+{
+  "name": "treasurix",
+  "private": true,
+  "packageManager": "bun@1.3.11",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "cd apps/web && bun run dev",
+    "build": "cd apps/web && bun run build",
+    "start": "cd apps/web && bun run start",
+    "lint": "cd apps/web && bun run lint",
+    "dev:npm": "npm run dev -w web",
+    "build:npm": "npm run build -w web",
+    "start:npm": "npm run start -w web",
+    "lint:npm": "npm run lint -w web",
+    "sdk:build:npm": "npm run build -w treasurix-checkout-sdk",
+    "sdk:build:bun": "cd packages/treasurix-checkout-sdk && bun run build"
+  }
+}

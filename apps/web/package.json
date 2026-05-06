@@ -1,0 +1,63 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Treasurix web app — private checkout, treasury, and dashboard on Next.js (Solana devnet + Cloak).",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/treasurix/treasurix-infra.git",
+    "directory": "apps/web"
+  },
+  "bugs": {
+    "url": "https://github.com/treasurix/treasurix-infra/issues"
+  },
+  "homepage": "https://github.com/treasurix/treasurix-infra/tree/main/apps/web#readme",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build --webpack",
+    "start": "next start",
+    "lint": "eslint .",
+    "postinstall": "prisma generate",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:pull": "prisma db pull",
+    "db:studio": "prisma studio",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy"
+  },
+  "dependencies": {
+    "@cloak.dev/sdk-devnet": "^0.1.5-devnet.1",
+    "@farcaster/mini-app-solana": "^2.0.0",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "@privy-io/react-auth": "^3.23.1",
+    "@privy-io/server-auth": "^1.32.5",
+    "@solana-program/memo": "^0.11.0",
+    "@solana/spl-token": "^0.4.14",
+    "@solana/web3.js": "^1.98.4",
+    "next": "16.2.4",
+    "nodemailer": "^8.0.7",
+    "pg": "^8.20.0",
+    "react": "^19",
+    "react-dom": "^19",
+    "shiki": "^4.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/nodemailer": "^8.0.0",
+    "@types/pg": "^8.20.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "postcss": "^8",
+    "prisma": "^7.8.0",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,125 @@
+// Treasurix — Neon Postgres (see plan.md §11). Start with users + organisations for Privy auth.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                 String    @id @default(uuid())
+  privyDid           String    @unique @map("privy_did")
+  email              String?
+  emailNotifications Boolean   @default(false) @map("email_notifications")
+  walletAddress      String?   @map("wallet_address")
+  /// Last successful `/api/auth/sync` (login refresh or client ping).
+  lastSyncedAt       DateTime? @map("last_synced_at")
+  /// Last reported on-chain signature from the app (e.g. Cloak, faucet).
+  lastTxSignature    String?   @map("last_tx_signature")
+  lastTxKind         String?   @map("last_tx_kind")
+  lastTxAt           DateTime? @map("last_tx_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  memberships         OrganizationMember[]
+  checkoutLinks       CheckoutLink[]
+  treasuryWithdrawals TreasuryWithdrawal[]
+  treasuryCloakState    TreasuryCloakState?
+  merchantApiKeys     MerchantApiKey[]
+
+  @@map("users")
+}
+
+/// Server-side checkout / treasury API keys (Bearer trx_live_…); hashed at rest.
+model MerchantApiKey {
+  id         String    @id @default(uuid())
+  userId     String    @map("user_id")
+  name       String?
+  /// Short prefix for dashboard display, e.g. trx_live_a1b2c3d4
+  keyPrefix  String    @map("key_prefix")
+  keyHash    String    @unique @map("key_hash")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  lastUsedAt DateTime? @map("last_used_at")
+  revokedAt  DateTime? @map("revoked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("merchant_api_keys")
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  members OrganizationMember[]
+
+  @@map("organizations")
+}
+
+/// Roles align with plan dashboards: owner, merchant, payroll, treasury
+model OrganizationMember {
+  id             String @id @default(uuid())
+  userId         String @map("user_id")
+  organizationId String @map("organization_id")
+  role           String @default("owner")
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@map("organization_members")
+}
+
+model CheckoutLink {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  label         String
+  amount        String
+  asset         String // e.g., "SOL", "Mock USDC"
+  status        String   @default("active") // "active", "settled", "expired"
+  txSignature   String?  @map("tx_signature")
+  customerEmail String?  @map("customer_email")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  merchantId String @map("merchant_id")
+  merchant   User   @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@map("checkout_links")
+}
+
+/// Recorded Cloak / treasury withdrawals (reduces net position vs settled checkouts).
+model TreasuryWithdrawal {
+  id          String   @id @default(uuid())
+  merchantId  String   @map("merchant_id")
+  asset       String
+  amount      String
+  txSignature String?  @map("tx_signature")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  merchant User @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@map("treasury_withdrawals")
+}
+
+/// Server-persisted Cloak treasury: one UTXO owner key + serialized {@link UtxoWallet} per merchant user.
+model TreasuryCloakState {
+  id              String @id @default(uuid())
+  userId          String @unique @map("user_id")
+  ownerPrivateKey String @map("owner_private_key") @db.Text
+  ownerPublicKey  String @map("owner_public_key") @db.Text
+  utxoWalletJson  String @map("utxo_wallet_json") @db.Text
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("treasury_cloak_state")
+}
