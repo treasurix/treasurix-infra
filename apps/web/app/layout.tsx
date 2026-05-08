@@ -32,12 +32,28 @@ const sourceCode = Source_Code_Pro({
   display: "swap",
 });
 
+function metadataBaseUrl(): URL | undefined {
+  const explicit = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (explicit) {
+    const normalized = explicit.replace(/\/$/, "");
+    return new URL(`${normalized}/`);
+  }
+  if (process.env.VERCEL_URL) {
+    return new URL(`https://${process.env.VERCEL_URL.replace(/^https?:\/\//, "")}/`);
+  }
+  return undefined;
+}
+
 export const metadata: Metadata = {
+  metadataBase: metadataBaseUrl(),
   title: "Treasurix — Private business payments on Solana",
   description:
     "Your money behaves the way you planned—allocated as intended, privately executed, and governed by your rules. Built on Cloak.",
   icons: {
-    icon: [{ url: "/assets/Treasurix.png", type: "image/png" }],
+    icon: [
+      { url: "/assets/Treasurix.png", type: "image/png", sizes: "32x32" },
+      { url: "/assets/Treasurix.png", type: "image/png", sizes: "any" },
+    ],
     apple: [{ url: "/assets/Treasurix.png", type: "image/png" }],
   },
   openGraph: {

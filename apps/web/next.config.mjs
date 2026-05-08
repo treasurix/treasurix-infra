@@ -11,6 +11,11 @@ const nextConfig = {
   // Hoisted workspace `node_modules` at repo root — stabilizes server trace/chunks in monorepos.
   outputFileTracingRoot: path.join(__dirname, "../.."),
 
+  // Browsers request /favicon.ico first; without this, many deployments show the host default icon.
+  async rewrites() {
+    return [{ source: "/favicon.ico", destination: "/assets/Treasurix.png" }];
+  },
+
   webpack: (config, { webpack, isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
