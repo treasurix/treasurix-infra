@@ -1,43 +1,52 @@
 # Treasurix
 
-Treasurix is a **self-hostable** stack for **Solana devnet** payments and treasury workflows using **Cloak**. It ships as a **Next.js** web application plus a **publishable npm package** (`treasurix-checkout-sdk`) so merchants can create hosted checkout links from their own backends.
-
-Use it when you want a single deployment that combines **hosted pay pages**, a **merchant dashboard**, **treasury** views, **API keys** for server integrations, and optional **email / webhook** hooks — without exposing secret keys in the browser.
+Treasurix is a **self-hosted** stack for **Solana devnet** payments and treasury: hosted checkout pages, a merchant dashboard, **Cloak**-backed treasury flows, **API keys** for server integrations, and optional email / webhook hooks. This repository ships the deployable **Next.js** app and the publishable **`treasurix-checkout-sdk`** npm package so merchants can create payment links from their own backends without exposing secrets in the browser.
 
 ## What Treasurix offers
 
 | Area | Description |
 |------|-------------|
-| **Hosted checkout** | Payers open a Treasurix-hosted URL (`/pay/:slug`) for a link you create. Amounts use decimal strings; supported assets on devnet include **SOL** and **Mock USDC** (see SDK types). |
-| **Merchant dashboard** | Sign-in (Privy), overview, and tools aligned with your deployment — including **Developers → API keys** for `trx_live_…` secrets. |
-| **Treasury (Cloak)** | Treasury state and flows tied to Solana **devnet** and Cloak’s devnet relay (configurable RPC). |
-| **Server SDK** | **`treasurix-checkout-sdk`** — ESM-only TypeScript client: create sessions, list links, resolve pay URLs. **Never** put `trx_live_` keys in frontend code. |
-| **Per-key checkout base** | Each API key can set an optional **public checkout URL** so pay links use your chosen host; otherwise the app uses `NEXT_PUBLIC_APP_URL` or the request origin (see SDK `sdk-config` behavior). |
-| **Data layer** | **PostgreSQL** (e.g. Neon) with **Prisma**; users, organizations, checkout links, API keys, treasury-related models. |
+| **Hosted checkout** | Payers open a Treasurix-hosted `/pay/:slug` page. You create links from the dashboard or via API using a `trx_live_` key. Amounts use decimal strings; supported assets on devnet include **SOL** and **Mock USDC** (see SDK types). |
+| **Merchant dashboard** | Sign in (Privy), manage checkout links, see activity aligned with your merchant account. |
+| **Treasury** | Treasury state and withdrawals integrate with **Cloak** on **Solana devnet** for private / shielded-style flows in development. |
+| **Developers → API keys** | Issue, revoke, and optionally set a **public checkout URL** per key so hosted pay links resolve to the right origin (CDN, custom domain, or `NEXT_PUBLIC_APP_URL`). Keys are hashed at rest; use a pepper in production (`TREASURIX_API_KEY_PEPPER`). |
+| **`treasurix-checkout-sdk`** | **Server-only** TypeScript client (ESM). Creates sessions, lists sessions, and resolves pay URLs by calling Treasurix’s `/api/checkout` and `/api/checkout/sdk-config`. |
 
-**Typical flow:** you deploy `apps/web`, configure env (database, Privy, public URL), create an API key in the dashboard, then from **your** server you call the SDK with `TREASURIX_API_KEY` and `TREASURIX_ORIGIN` pointing at **your** Treasurix deployment’s `/api/checkout`.
+**Important:** Never put `trx_live_` keys in frontends or mobile apps. Only your server should call the SDK or Treasurix checkout APIs with `Authorization: Bearer …`.
 
-## Architecture (monorepo)
+## Architecture at a glance
 
+```text
+┌─────────────────────┐     Bearer trx_live_      ┌──────────────────────────┐
+│  Merchant backend   │ ────────────────────────► │  Treasurix (Next.js)     │
+│  + checkout SDK     │     /api/checkout,        │  Postgres · Privy ·      │
+└─────────────────────┘     /api/checkout/        │  Solana devnet / Cloak   │
+         │                  sdk-config            └───────────┬──────────────┘
+         │                                                    │
+         └──────── redirect / email payer ───────────────────►│  Hosted /pay/:slug
 ```
-treasurix-infra/
-├── apps/web/                      # Next.js — private deployable app
-└── packages/treasurix-checkout-sdk/   # npm library for merchant servers
-```
 
-- **`apps/web`** — Next.js app: checkout UI, dashboard, APIs (`/api/checkout`, `/api/checkout/sdk-config`, etc.). Not published to npm; deploy to Vercel or similar.
-- **`treasurix-checkout-sdk`** — Server-only client; published or vendored from `packages/treasurix-checkout-sdk`.
+- **Treasurix app** (`apps/web`): Next.js, Prisma + PostgreSQL, Privy auth.
+- **SDK** (`packages/treasurix-checkout-sdk`): thin `fetch` client; `TREASURIX_ORIGIN` (or constructor option) points at wherever Treasurix serves `/api/checkout`.
 
-Detailed setup, env tables, and scripts: [apps/web/README.md](./apps/web/README.md). SDK install, env vars, and API notes: [packages/treasurix-checkout-sdk/README.md](./packages/treasurix-checkout-sdk/README.md).
+## Monorepo layout
 
-## Node.js
+| Path | Role |
+|------|------|
+| [`apps/web`](./apps/web) | Next.js application — env vars, DB, scripts: [apps/web/README.md](./apps/web/README.md) |
+| [`packages/treasurix-checkout-sdk`](./packages/treasurix-checkout-sdk) | Published npm library — API and env reference: [packages/treasurix-checkout-sdk/README.md](./packages/treasurix-checkout-sdk/README.md) |
 
-- **Required:** Node **≥ 20.9** (LTS **22** or **20** recommended).
-- Lock locally with [nvm](https://github.com/nvm-sh/nvm): `nvm use` (reads [`.nvmrc`](./.nvmrc)) or [fnm](https://github.com/Schniz/fnm).
+Root scripts delegate to the web app and SDK workspaces (see [`package.json`](./package.json)).
+
+## Requirements
+
+- **Node.js ≥ 20.9** (LTS **22** or **20** recommended). Lock locally with [nvm](https://github.com/nvm-sh/nvm) (`nvm use` reads [`.nvmrc`](./.nvmrc)) or [fnm](https://github.com/Schniz/fnm).
 
 ```bash
-node -v   # should be v20.9+ or v22.x
+node -v   # expect v20.9+ or v22.x
 ```
+
+Running Treasurix itself also needs **PostgreSQL** (e.g. [Neon](https://neon.tech)) and a **[Privy](https://dashboard.privy.io)** app (App ID + secret). Full variable list: [`apps/web/env.example`](./apps/web/env.example).
 
 ## Install and run
 
@@ -65,81 +74,48 @@ Build the SDK from root:
 npm run sdk:build:npm
 ```
 
-### Per-package with npm
-
-**Web app:**
+### First-time setup (web app)
 
 ```bash
 cd apps/web
-npm install
 cp env.example .env
-npm run db:push
-npm run dev
+# Edit .env: DATABASE_URL, NEXT_PUBLIC_PRIVY_APP_ID, PRIVY_APP_SECRET, NEXT_PUBLIC_APP_URL, …
+bun run db:push      # or: npm run db:push
+bun run dev          # open http://localhost:3000
 ```
 
-**Checkout SDK (library):**
-
-```bash
-cd packages/treasurix-checkout-sdk
-npm install
-npm run build
-```
-
-Open the app at [http://localhost:3000](http://localhost:3000) after `dev` (unless you override the port).
+Per-package npm details for web and SDK remain in the linked READMEs above.
 
 ## Example: create a checkout session from your server
 
-Install the SDK on **your** backend (or use the workspace package while developing):
+Install the SDK on the merchant service:
 
 ```bash
 npm install treasurix-checkout-sdk
 ```
 
-Set environment variables on the merchant server:
-
-- `TREASURIX_API_KEY` — secret from Treasurix **Dashboard → Developers → API keys** (`trx_live_…`).
-- `TREASURIX_ORIGIN` — origin where **your** Treasurix app serves `/api/checkout` (e.g. `https://pay.yourcompany.com`), no trailing slash.
+Set **`TREASURIX_API_KEY`** to a dashboard key (`trx_live_…`) and **`TREASURIX_ORIGIN`** to the origin where Treasurix is deployed (e.g. `https://checkout.yourcompany.com`), so application code only passes the key.
 
 ```typescript
 import { TreasurixCheckoutClient } from "treasurix-checkout-sdk";
 
 const client = new TreasurixCheckoutClient({
   apiKey: process.env.TREASURIX_API_KEY!,
-  // treasurixOrigin optional if TREASURIX_ORIGIN is set
+  // treasurixOrigin optional if TREASURIX_ORIGIN is set on this host
 });
 
 const session = await client.createCheckoutSession({
-  label: "Invoice #4291",
-  amount: "25.00",
-  asset: "Mock USDC", // or "SOL"
-  customerEmail: "billing@customer.com", // optional
+  label: "Order #1042",
+  amount: "12.50",
+  asset: "Mock USDC",
+  customerEmail: "payer@example.com", // optional
 });
 
-// Send this URL to the payer (host comes from dashboard / NEXT_PUBLIC_APP_URL / sdk-config)
+// Send this URL to the payer (email, SMS, redirect after order creation)
 console.log(session.checkoutUrl);
 ```
 
-Optional: validate configuration at startup:
-
-```typescript
-await TreasurixCheckoutClient.create({ apiKey: process.env.TREASURIX_API_KEY! });
-```
-
-List sessions or build a pay URL from a slug:
-
-```typescript
-const links = await client.listCheckoutSessions();
-const url = await client.payUrl(session.slug);
-```
-
-The SDK is **ESM-only** (use `import` / dynamic `import()`, not `require`). Full tables for `TREASURIX_ORIGIN` vs per-key public checkout URL: [packages/treasurix-checkout-sdk/README.md](./packages/treasurix-checkout-sdk/README.md).
-
-## Layout
-
-| Path | Role |
-|------|------|
-| [`apps/web`](./apps/web) | Next.js app — [README](./apps/web/README.md), [`env.example`](./apps/web/env.example) |
-| [`packages/treasurix-checkout-sdk`](./packages/treasurix-checkout-sdk) | npm package — [README](./packages/treasurix-checkout-sdk/README.md) |
+Optional: validate configuration at startup with `TreasurixCheckoutClient.create({ apiKey: … })`. List links with `client.listCheckoutSessions()` and build URLs with `await client.payUrl(session.slug)`. Full options, env table, and ESM notes: [packages/treasurix-checkout-sdk/README.md](./packages/treasurix-checkout-sdk/README.md).
 
 ## License
 
