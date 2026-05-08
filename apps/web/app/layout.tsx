@@ -36,6 +36,10 @@ export const metadata: Metadata = {
   title: "Treasurix — Private business payments on Solana",
   description:
     "Your money behaves the way you planned—allocated as intended, privately executed, and governed by your rules. Built on Cloak.",
+  icons: {
+    icon: [{ url: "/assets/Treasurix.png", type: "image/png" }],
+    apple: [{ url: "/assets/Treasurix.png", type: "image/png" }],
+  },
   openGraph: {
     title: "Treasurix",
     description:
