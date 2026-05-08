@@ -25,7 +25,7 @@ if (typeof u8.readBigInt64LE !== "function") {
       if (off + 8 > this.byteLength) {
         throw new RangeError("readBigInt64LE: not enough bytes");
       }
-      return new DataView(this.buffer, this.byteOffset + off, 8).getBigInt64(true);
+      return new DataView(this.buffer, this.byteOffset + off, 8).getBigInt64(0, true);
     },
   });
 }
@@ -39,7 +39,7 @@ if (typeof u8.readBigUInt64LE !== "function") {
       if (off + 8 > this.byteLength) {
         throw new RangeError("readBigUInt64LE: not enough bytes");
       }
-      return new DataView(this.buffer, this.byteOffset + off, 8).getBigUint64(true);
+      return new DataView(this.buffer, this.byteOffset + off, 8).getBigUint64(0, true);
     },
   });
 }

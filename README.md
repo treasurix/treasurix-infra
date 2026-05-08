@@ -1,20 +1,156 @@
 # Treasurix
 
-Treasurix is a **self-hosted** stack for **Solana devnet** payments and treasury: hosted checkout pages, a merchant dashboard, **Cloak**-backed treasury flows, **API keys** for server integrations, and optional email / webhook hooks. This repository ships the deployable **Next.js** app and the publishable **`treasurix-checkout-sdk`** npm package so merchants can create payment links from their own backends without exposing secrets in the browser.
+Private **Solana devnet** checkout, treasury, and merchant dashboard. Settlement and treasury shielding go through the **Cloak** protocol; merchants integrate checkout from their servers with **`treasurix-checkout-sdk`**.
 
-## What Treasurix offers
+## Live demo and source
+
+| | |
+|--|--|
+| **Public repository** | [github.com/treasurix/treasurix-infra](https://github.com/treasurix/treasurix-infra) — full project code (Next.js app, SDK, configs). |
+| **Live deployment** | [https://treasurix.vercel.app](https://treasurix.vercel.app). |
+
+**Suggested entry points after deploy or locally:** `/` (landing), `/pay/<slug>` (hosted checkout), `/dashboard` (requires [Privy](https://privy.io) sign-in).
+
+---
+
+## The problem and who this is for
+
+**Problem:** Teams that want **business-grade checkout and treasury** on Solana often face a gap between “public ledger transfers” and **private settlement**: invoice and payroll semantics live in product databases, but moving value without exposing every counterparty and amount on-chain is hard. Treasurix combines **hosted payment links**, a **dashboard**, and **shielded treasury flows** so operators can run checkout and treasury in one place while routing sensitive settlement through Cloak’s devnet stack.
+
+**Who it’s for:**
+
+- **Merchants / operators** who need branded or API-driven checkout and a unified view of links and treasury.
+- **Developers** who call Treasurix from a **backend only** with `trx_live_` API keys and the published SDK (keys never ship to browsers).
+- **Hackathon / review contexts** where a runnable Next.js app plus documented **Cloak devnet** program IDs and relay matter for verification.
+
+---
+
+## How the Cloak SDK is used and why it’s central
+
+Treasurix is not “Solana transfers only”: **value movement for shielding and treasury uses `@cloak.dev/sdk-devnet`**. That package supplies the **devnet program id**, **relay URL**, UTXO helpers, and `transact` entry points; the app wires them to Privy-connected wallets and persisted treasury state.
+
+**Why Cloak is central**
+
+- **Privacy posture:** Checkout and treasury flows that shield into Cloak move balances into the **Cloak shield pool** with Groth16-style proving (devnet), instead of only posting simple SPL transfers.
+- **Single product story:** Landing, checkout, and treasury UI all describe settlement through Cloak; email copy references shielded settlement where applicable.
+
+**How the SDK is used in this repo (browser, dynamic import)**
+
+Client components load the SDK with `import("@cloak.dev/sdk-devnet")` so heavy crypto loads on demand. Typical building blocks:
+
+| SDK surface | Role in Treasurix |
+|-------------|-------------------|
+| `CLOAK_PROGRAM_ID` | Passed to `transact` as `programId` (matches documented devnet program below). |
+| `transact(...)` | Submits shield / transfer flows to Solana devnet via the Cloak relay. |
+| `createUtxo`, `createZeroUtxo`, `generateUtxoKeypair` | Build outputs and padding notes for circuits (e.g. mock USDC requires zero UTXO matching output mint). |
+| `getNkFromUtxoPrivateKey` | Derives viewing-key material for treasury owner keys. |
+| `registerViewingKey` | Registers payer viewing keys with the relay where required (hosted checkout path). |
+| `NATIVE_SOL_MINT`, `DEVNET_MOCK_USDC_MINT` | Asset selection for SOL vs devnet mock USDC. |
+
+**Where it appears in the app**
+
+- **Hosted checkout** ([`PaymentCheckout.tsx`](./apps/web/app/components/PaymentCheckout.tsx)): payer wallet + Cloak `transact` path for paying a `/pay/:slug` link.
+- **Dashboard checkout / shield** ([`CheckoutConsole.tsx`](./apps/web/app/components/CheckoutConsole.tsx)): merchant-side shield of checkout proceeds toward treasury private balance.
+- **Treasury pool** ([`TreasuryPoolDashboard.tsx`](./apps/web/app/components/TreasuryPoolDashboard.tsx), [`TreasuryCloakDevnetPanel.tsx`](./apps/web/app/components/TreasuryCloakDevnetPanel.tsx)): deposits and ledger-alignment shields using the same `transact` + relay pattern.
+- **Persisted treasury keys / UTXO wallet** ([`treasurix-treasury-cloak-wallet.ts`](./apps/web/lib/treasurix-treasury-cloak-wallet.ts), [`/api/treasury/cloak-state`](./apps/web/app/api/treasury/cloak-state/route.ts)): server-backed storage of treasury Cloak material (authenticated with Privy), so the dashboard can reload shielded state safely.
+
+Relay URL and program id used in UI and docs are centralized in [`apps/web/lib/cloak-devnet-reference.ts`](./apps/web/lib/cloak-devnet-reference.ts) (aligned with the SDK’s devnet defaults).
+
+---
+
+## Solana devnet: program IDs, relay, and explorers
+
+These are the **Cloak devnet** and related addresses Treasurix uses (see [`cloak-devnet-reference.ts`](./apps/web/lib/cloak-devnet-reference.ts)).
+
+| Item | Value |
+|------|--------|
+| **Cloak program (devnet)** | `Zc1kHfp4rajSMeASFDwFFgkHRjv7dFQuLheJoQus27h` — [Solscan (devnet)](https://solscan.io/account/Zc1kHfp4rajSMeASFDwFFgkHRjv7dFQuLheJoQus27h?cluster=devnet) |
+| **Cloak relay** | `https://api.devnet.cloak.ag` |
+| **Default Solana RPC** | `https://api.devnet.solana.com` (override with `NEXT_PUBLIC_SOLANA_DEVNET_RPC`) |
+| **Native SOL mint (convention)** | `So11111111111111111111111111111111111111112` |
+| **Devnet mock USDC (6 decimals)** | `61ro7AExqfk4dZYoCyRzTahahCC2TdUUZ4M5epMPunJf` — mint test USDC from the [Cloak devnet faucet](https://devnet.cloak.ag/privacy/faucet) when testing USDC paths |
+
+---
+
+## Setup and run
+
+For **judges:** if no live URL is listed above, follow these steps and open `http://localhost:3000`.
+
+**Prerequisites:** Node **≥ 20.9**, PostgreSQL ([Neon](https://neon.tech) is fine), a [Privy](https://dashboard.privy.io) application (App ID + App Secret).
+
+1. **Clone and install** (from repo root)
+
+   ```bash
+   git clone https://github.com/treasurix/treasurix-infra.git
+   cd treasurix-infra
+   ```
+
+   With **Bun** (root default):
+
+   ```bash
+   bun install
+   ```
+
+   Or **npm** workspaces:
+
+   ```bash
+   npm install
+   ```
+
+2. **Configure the web app**
+
+   ```bash
+   cd apps/web
+   cp env.example .env
+   ```
+
+   Edit `.env` at minimum ([full reference](./apps/web/env.example)):
+
+   | Variable | Purpose |
+   |----------|---------|
+   | `DATABASE_URL` | Postgres connection string |
+   | `NEXT_PUBLIC_PRIVY_APP_ID` | Privy client identifier |
+   | `PRIVY_APP_SECRET` | Privy server secret |
+   | `NEXT_PUBLIC_APP_URL` | e.g. `http://localhost:3000` for local checkout links |
+
+3. **Apply database schema**
+
+   ```bash
+   cd apps/web
+   bun run db:push
+   # or: npm run db:push
+   ```
+
+4. **Run Next.js**
+
+   From **monorepo root**:
+
+   ```bash
+   bun run dev
+   # or: npm run dev:npm
+   ```
+
+   Or from `apps/web`: `bun run dev` / `npm run dev`.
+
+5. **Open** [http://localhost:3000](http://localhost:3000). Sign in with Privy, connect a **Solana devnet** wallet, fund SOL (and mock USDC via Cloak faucet if testing USDC).
+
+**Build SDK (optional, for packaging):** from root, `npm run sdk:build:npm` or `bun run sdk:build:bun`. Consumer docs: [packages/treasurix-checkout-sdk/README.md](./packages/treasurix-checkout-sdk/README.md).
+
+**Deploy (e.g. Vercel):** set Vercel **Root Directory** to `apps/web`, add the same env vars in the dashboard, set `NEXT_PUBLIC_APP_URL` to your production HTTPS origin, run `prisma db push` (or migrate deploy) once against production Postgres from your machine, and add your deployment URL to the [live demo](#live-demo-and-source) table at the top of this README.
+
+---
+
+## What Treasurix offers (feature summary)
 
 | Area | Description |
 |------|-------------|
-| **Hosted checkout** | Payers open a Treasurix-hosted `/pay/:slug` page. You create links from the dashboard or via API using a `trx_live_` key. Amounts use decimal strings; supported assets on devnet include **SOL** and **Mock USDC** (see SDK types). |
-| **Merchant dashboard** | Sign in (Privy), manage checkout links, see activity aligned with your merchant account. |
-| **Treasury** | Treasury state and withdrawals integrate with **Cloak** on **Solana devnet** for private / shielded-style flows in development. |
-| **Developers → API keys** | Issue, revoke, and optionally set a **public checkout URL** per key so hosted pay links resolve to the right origin (CDN, custom domain, or `NEXT_PUBLIC_APP_URL`). Keys are hashed at rest; use a pepper in production (`TREASURIX_API_KEY_PEPPER`). |
-| **`treasurix-checkout-sdk`** | **Server-only** TypeScript client (ESM). Creates sessions, lists sessions, and resolves pay URLs by calling Treasurix’s `/api/checkout` and `/api/checkout/sdk-config`. |
+| **Hosted checkout** | Payers use `/pay/:slug`. Links are created in the dashboard or via API with a `trx_live_` key. Assets on devnet: **SOL**, **Mock USDC**. |
+| **Merchant dashboard** | Privy auth, checkout, treasury pool, API keys, settings. |
+| **Treasury** | Cloak-backed shielding and pool views on **Solana devnet**. |
+| **API keys** | Dashboard **Developers → API keys**; optional per-key public checkout base URL; keys hashed at rest (`TREASURIX_API_KEY_PEPPER` recommended in production). |
+| **`treasurix-checkout-sdk`** | Server-only ESM client for `POST/GET /api/checkout` and sdk-config. Never expose `trx_live_` in the browser. |
 
-**Important:** Never put `trx_live_` keys in frontends or mobile apps. Only your server should call the SDK or Treasurix checkout APIs with `Authorization: Bearer …`.
-
-## Architecture at a glance
+**Architecture**
 
 ```text
 ┌─────────────────────┐     Bearer trx_live_      ┌──────────────────────────┐
@@ -26,97 +162,44 @@ Treasurix is a **self-hosted** stack for **Solana devnet** payments and treasury
          └──────── redirect / email payer ───────────────────►│  Hosted /pay/:slug
 ```
 
-- **Treasurix app** (`apps/web`): Next.js, Prisma + PostgreSQL, Privy auth.
-- **SDK** (`packages/treasurix-checkout-sdk`): thin `fetch` client; `TREASURIX_ORIGIN` (or constructor option) points at wherever Treasurix serves `/api/checkout`.
+---
 
 ## Monorepo layout
 
 | Path | Role |
 |------|------|
-| [`apps/web`](./apps/web) | Next.js application — env vars, DB, scripts: [apps/web/README.md](./apps/web/README.md) |
-| [`packages/treasurix-checkout-sdk`](./packages/treasurix-checkout-sdk) | Published npm library — API and env reference: [packages/treasurix-checkout-sdk/README.md](./packages/treasurix-checkout-sdk/README.md) |
+| [`apps/web`](./apps/web) | Next.js app — [apps/web/README.md](./apps/web/README.md) |
+| [`packages/treasurix-checkout-sdk`](./packages/treasurix-checkout-sdk) | Publishable npm SDK — [package README](./packages/treasurix-checkout-sdk/README.md) |
 
-Root scripts delegate to the web app and SDK workspaces (see [`package.json`](./package.json)).
-
-## Requirements
-
-- **Node.js ≥ 20.9** (LTS **22** or **20** recommended). Lock locally with [nvm](https://github.com/nvm-sh/nvm) (`nvm use` reads [`.nvmrc`](./.nvmrc)) or [fnm](https://github.com/Schniz/fnm).
-
-```bash
-node -v   # expect v20.9+ or v22.x
-```
-
-Running Treasurix itself also needs **PostgreSQL** (e.g. [Neon](https://neon.tech)) and a **[Privy](https://dashboard.privy.io)** app (App ID + secret). Full variable list: [`apps/web/env.example`](./apps/web/env.example).
-
-## Install and run
-
-### Bun (default for root scripts)
-
-```bash
-bun install
-bun run dev          # Next.js in apps/web
-```
-
-### npm (workspaces)
-
-From the repo root:
-
-```bash
-npm install
-npm run dev:npm      # same as: npm run dev -w web
-npm run build:npm
-npm run lint:npm
-```
-
-Build the SDK from root:
-
-```bash
-npm run sdk:build:npm
-```
-
-### First-time setup (web app)
-
-```bash
-cd apps/web
-cp env.example .env
-# Edit .env: DATABASE_URL, NEXT_PUBLIC_PRIVY_APP_ID, PRIVY_APP_SECRET, NEXT_PUBLIC_APP_URL, …
-bun run db:push      # or: npm run db:push
-bun run dev          # open http://localhost:3000
-```
-
-Per-package npm details for web and SDK remain in the linked READMEs above.
+---
 
 ## Example: create a checkout session from your server
-
-Install the SDK on the merchant service:
 
 ```bash
 npm install treasurix-checkout-sdk
 ```
-
-Set **`TREASURIX_API_KEY`** to a dashboard key (`trx_live_…`) and **`TREASURIX_ORIGIN`** to the origin where Treasurix is deployed (e.g. `https://checkout.yourcompany.com`), so application code only passes the key.
 
 ```typescript
 import { TreasurixCheckoutClient } from "treasurix-checkout-sdk";
 
 const client = new TreasurixCheckoutClient({
   apiKey: process.env.TREASURIX_API_KEY!,
-  // treasurixOrigin optional if TREASURIX_ORIGIN is set on this host
 });
 
 const session = await client.createCheckoutSession({
   label: "Order #1042",
   amount: "12.50",
   asset: "Mock USDC",
-  customerEmail: "payer@example.com", // optional
+  customerEmail: "payer@example.com",
 });
 
-// Send this URL to the payer (email, SMS, redirect after order creation)
 console.log(session.checkoutUrl);
 ```
 
-Optional: validate configuration at startup with `TreasurixCheckoutClient.create({ apiKey: … })`. List links with `client.listCheckoutSessions()` and build URLs with `await client.payUrl(session.slug)`. Full options, env table, and ESM notes: [packages/treasurix-checkout-sdk/README.md](./packages/treasurix-checkout-sdk/README.md).
+Set `TREASURIX_ORIGIN` on the merchant server to the HTTPS origin where Treasurix serves `/api/checkout`. Details: [packages/treasurix-checkout-sdk/README.md](./packages/treasurix-checkout-sdk/README.md).
+
+---
 
 ## License
 
-MIT — see [apps/web/LICENSE](./apps/web/LICENSE) and [packages/treasurix-checkout-sdk/LICENSE](./packages/treasurix-checkout-sdk/LICENSE).
+MIT — [apps/web/LICENSE](./apps/web/LICENSE), [packages/treasurix-checkout-sdk/LICENSE](./packages/treasurix-checkout-sdk/LICENSE).
