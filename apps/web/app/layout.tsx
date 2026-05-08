@@ -35,7 +35,7 @@ const sourceCode = Source_Code_Pro({
 export const metadata: Metadata = {
   title: "Treasurix — Private business payments on Solana",
   description:
-    "Checkout and treasury infrastructure — private by default, compliant on demand, AI-native from day one. Built on Cloak.",
+    "Your money behaves the way you planned—allocated as intended, privately executed, and governed by your rules. Built on Cloak.",
   openGraph: {
     title: "Treasurix",
     description:
@@ -50,11 +50,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="bg-canvas dark" suppressHydrationWarning>
+    <html lang="en" data-scroll-behavior="smooth" className="bg-canvas dark" suppressHydrationWarning>
       <body
         className={`${sans.variable} ${display.variable} ${mono.variable} ${sourceCode.variable} min-h-screen antialiased transition-colors duration-300`}
       >
-        <Providers>
+        <Providers key={process.env.NEXT_PUBLIC_PRIVY_APP_ID}>
           <CustomCursor />
           {children}
         </Providers>

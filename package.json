@@ -5,7 +5,7 @@
   "engines": {
     "node": ">=20.9.0"
   },
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": ["apps/*", "packages/*", "examples/*"],
   "scripts": {
     "dev": "cd apps/web && bun run dev",
     "build": "cd apps/web && bun run build",

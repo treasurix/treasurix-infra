@@ -10,7 +10,81 @@ type Row = {
   keyPrefix: string;
   createdAt: string;
   lastUsedAt: string | null;
+  checkoutBaseUrl: string | null;
 };
+
+function CheckoutUrlEditor({
+  keyId,
+  initialCheckoutBaseUrl,
+  getAuthHeader,
+  onToast,
+  onSaved,
+}: {
+  keyId: string;
+  initialCheckoutBaseUrl: string | null;
+  getAuthHeader: () => Promise<Record<string, string> | null>;
+  onToast: (msg: string) => void;
+  onSaved: () => void;
+}) {
+  const [value, setValue] = useState(initialCheckoutBaseUrl ?? "");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setValue(initialCheckoutBaseUrl ?? "");
+  }, [initialCheckoutBaseUrl, keyId]);
+
+  const save = async () => {
+    const h = await getAuthHeader();
+    if (!h) return;
+    setSaving(true);
+    try {
+      const trimmed = value.trim();
+      const res = await fetch(`/api/dashboard/api-keys/${encodeURIComponent(keyId)}`, {
+        method: "PATCH",
+        headers: { ...h, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          checkoutBaseUrl: trimmed === "" ? null : trimmed,
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        onToast(data.error ?? "Failed to save checkout URL");
+        return;
+      }
+      onToast("Public checkout URL saved.");
+      onSaved();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mt-3 w-full max-w-lg border-t border-hairline pt-3 sm:max-w-xl">
+      <span className="text-xs font-medium text-subtext">Public checkout URL</span>
+      <p className="mt-0.5 text-[11px] leading-relaxed text-subtext">
+        Origin payers open for <code className="font-mono">/pay/…</code> (e.g.{" "}
+        <span className="font-mono">https://pay.example.com</span>). Leave empty to use Treasurix defaults 
+      </p>
+      <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+        <input
+          type="url"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="https://checkout.example.com"
+          className="min-w-0 flex-1 rounded-lg border border-hairline bg-surface-soft px-3 py-2 font-mono text-xs text-ink"
+        />
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => void save()}
+          className="shrink-0 rounded-lg border border-hairline bg-surface-solid px-3 py-2 text-xs font-semibold text-ink hover:bg-surface-soft disabled:opacity-50"
+        >
+          {saving ? "Saving…" : "Save"}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function ApiKeysPanel() {
   const { getAccessToken, authenticated, ready } = usePrivy();
@@ -119,7 +193,8 @@ export function ApiKeysPanel() {
           Use <code className="rounded bg-surface-soft px-1 font-mono text-xs">Authorization: Bearer trx_live_…</code> from
           your backend with{" "}
           <code className="rounded bg-surface-soft px-1 font-mono text-xs">treasurix-checkout-sdk</code>. Funds settle to
-          the same treasury as this dashboard account.
+          the same treasury as this dashboard account. Set an optional public checkout URL per key so pay links use your domain
+          without changing integrator code.
         </p>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
           <label className="flex flex-1 flex-col gap-1 text-sm font-medium text-ink">
@@ -179,18 +254,25 @@ export function ApiKeysPanel() {
         ) : (
           <ul className="divide-y divide-hairline">
             {rows.map((r) => (
-              <li key={r.id} className="flex flex-col gap-2 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
+              <li key={r.id} className="flex flex-col gap-2 px-6 py-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0 flex-1">
                   <p className="font-mono text-sm text-ink">{r.keyPrefix}</p>
                   <p className="text-xs text-subtext">
                     {r.name ?? "Unnamed"} · created {new Date(r.createdAt).toLocaleString()}
                     {r.lastUsedAt ? ` · last used ${new Date(r.lastUsedAt).toLocaleString()}` : " · never used"}
                   </p>
+                  <CheckoutUrlEditor
+                    keyId={r.id}
+                    initialCheckoutBaseUrl={r.checkoutBaseUrl}
+                    getAuthHeader={authHeader}
+                    onToast={setToast}
+                    onSaved={() => void load()}
+                  />
                 </div>
                 <button
                   type="button"
                   onClick={() => void revoke(r.id)}
-                  className="self-start rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100"
+                  className="self-start rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 sm:shrink-0"
                 >
                   Revoke
                 </button>

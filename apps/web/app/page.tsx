@@ -113,10 +113,6 @@ export default function Home() {
           <HeroBackdrop />
           <div className="relative mx-auto max-w-content px-6 sm:px-8">
             <div className="flex flex-col items-center text-center mb-20">
-              <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-hairline bg-surface-soft/80 px-5 py-2 text-xs font-extreme text-ink shadow-sm backdrop-blur-md animate-fade-up">
-                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="tracking-widest uppercase">Live on Solana Devnet</span>
-              </div>
               <h1 className="font-display text-balance text-[clamp(2.5rem,8vw,5.5rem)] font-extreme leading-[1] tracking-tight text-ink animate-fade-up">
                 Private payments for
                 <span className="block bg-gradient-to-r from-accent via-fuchsia-500 to-indigo-500 bg-clip-text text-transparent pb-2">
@@ -124,8 +120,7 @@ export default function Home() {
                 </span>
               </h1>
               <p className="mt-8 max-w-2xl text-lg leading-relaxed font-medium text-subtext sm:text-xl animate-fade-up" style={{ animationDelay: '0.1s' }}>
-                Secure, shielded checkout and treasury infrastructure built on Cloak.
-                Private by default, compliant on demand, AI-native from day one.
+                Your money behaves the way you planned—allocated as intended, privately executed, and governed by your rules.
               </p>
               
               <div className="mt-12 flex flex-wrap items-center justify-center gap-4 animate-fade-up" style={{ animationDelay: '0.2s' }}>

@@ -129,7 +129,8 @@ Open [http://localhost:3000](http://localhost:3000).
 Server-side integration uses **`treasurix-checkout-sdk`** with:
 
 - `TREASURIX_API_KEY` — dashboard **Developers → API keys** (`trx_live_…`)
-- `TREASURIX_BASE_URL` — origin of **this** deployed app (same value as `NEXT_PUBLIC_APP_URL` in production)
+- `TREASURIX_ORIGIN` (or legacy `TREASURIX_BASE_URL`) — origin where **this** Treasurix app serves `/api/checkout` (often the same host as `NEXT_PUBLIC_APP_URL`). With this set on the merchant server, SDK code can pass only `apiKey`.
+- Optional **public checkout URL** per key in the dashboard — where `/pay/…` links open for that key (the SDK reads it from `/api/checkout/sdk-config`).
 
 Docs: [`packages/treasurix-checkout-sdk/README.md`](../packages/treasurix-checkout-sdk/README.md).
 

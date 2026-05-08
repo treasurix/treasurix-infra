@@ -33,6 +33,7 @@ export type MerchantApiKeyMinAggregateOutputType = {
   createdAt: Date | null
   lastUsedAt: Date | null
   revokedAt: Date | null
+  checkoutBaseUrl: string | null
 }
 
 export type MerchantApiKeyMaxAggregateOutputType = {
@@ -44,6 +45,7 @@ export type MerchantApiKeyMaxAggregateOutputType = {
   createdAt: Date | null
   lastUsedAt: Date | null
   revokedAt: Date | null
+  checkoutBaseUrl: string | null
 }
 
 export type MerchantApiKeyCountAggregateOutputType = {
@@ -55,6 +57,7 @@ export type MerchantApiKeyCountAggregateOutputType = {
   createdAt: number
   lastUsedAt: number
   revokedAt: number
+  checkoutBaseUrl: number
   _all: number
 }
 
@@ -68,6 +71,7 @@ export type MerchantApiKeyMinAggregateInputType = {
   createdAt?: true
   lastUsedAt?: true
   revokedAt?: true
+  checkoutBaseUrl?: true
 }
 
 export type MerchantApiKeyMaxAggregateInputType = {
@@ -79,6 +83,7 @@ export type MerchantApiKeyMaxAggregateInputType = {
   createdAt?: true
   lastUsedAt?: true
   revokedAt?: true
+  checkoutBaseUrl?: true
 }
 
 export type MerchantApiKeyCountAggregateInputType = {
@@ -90,6 +95,7 @@ export type MerchantApiKeyCountAggregateInputType = {
   createdAt?: true
   lastUsedAt?: true
   revokedAt?: true
+  checkoutBaseUrl?: true
   _all?: true
 }
 
@@ -174,6 +180,7 @@ export type MerchantApiKeyGroupByOutputType = {
   createdAt: Date
   lastUsedAt: Date | null
   revokedAt: Date | null
+  checkoutBaseUrl: string | null
   _count: MerchantApiKeyCountAggregateOutputType | null
   _min: MerchantApiKeyMinAggregateOutputType | null
   _max: MerchantApiKeyMaxAggregateOutputType | null
@@ -206,6 +213,7 @@ export type MerchantApiKeyWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"MerchantApiKey"> | Date | string
   lastUsedAt?: Prisma.DateTimeNullableFilter<"MerchantApiKey"> | Date | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"MerchantApiKey"> | Date | string | null
+  checkoutBaseUrl?: Prisma.StringNullableFilter<"MerchantApiKey"> | string | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
@@ -218,6 +226,7 @@ export type MerchantApiKeyOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  checkoutBaseUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
 }
 
@@ -233,6 +242,7 @@ export type MerchantApiKeyWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"MerchantApiKey"> | Date | string
   lastUsedAt?: Prisma.DateTimeNullableFilter<"MerchantApiKey"> | Date | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"MerchantApiKey"> | Date | string | null
+  checkoutBaseUrl?: Prisma.StringNullableFilter<"MerchantApiKey"> | string | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "keyHash">
 
@@ -245,6 +255,7 @@ export type MerchantApiKeyOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  checkoutBaseUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.MerchantApiKeyCountOrderByAggregateInput
   _max?: Prisma.MerchantApiKeyMaxOrderByAggregateInput
   _min?: Prisma.MerchantApiKeyMinOrderByAggregateInput
@@ -262,6 +273,7 @@ export type MerchantApiKeyScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"MerchantApiKey"> | Date | string
   lastUsedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"MerchantApiKey"> | Date | string | null
   revokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"MerchantApiKey"> | Date | string | null
+  checkoutBaseUrl?: Prisma.StringNullableWithAggregatesFilter<"MerchantApiKey"> | string | null
 }
 
 export type MerchantApiKeyCreateInput = {
@@ -272,6 +284,7 @@ export type MerchantApiKeyCreateInput = {
   createdAt?: Date | string
   lastUsedAt?: Date | string | null
   revokedAt?: Date | string | null
+  checkoutBaseUrl?: string | null
   user: Prisma.UserCreateNestedOneWithoutMerchantApiKeysInput
 }
 
@@ -284,6 +297,7 @@ export type MerchantApiKeyUncheckedCreateInput = {
   createdAt?: Date | string
   lastUsedAt?: Date | string | null
   revokedAt?: Date | string | null
+  checkoutBaseUrl?: string | null
 }
 
 export type MerchantApiKeyUpdateInput = {
@@ -294,6 +308,7 @@ export type MerchantApiKeyUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checkoutBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutMerchantApiKeysNestedInput
 }
 
@@ -306,6 +321,7 @@ export type MerchantApiKeyUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checkoutBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type MerchantApiKeyCreateManyInput = {
@@ -317,6 +333,7 @@ export type MerchantApiKeyCreateManyInput = {
   createdAt?: Date | string
   lastUsedAt?: Date | string | null
   revokedAt?: Date | string | null
+  checkoutBaseUrl?: string | null
 }
 
 export type MerchantApiKeyUpdateManyMutationInput = {
@@ -327,6 +344,7 @@ export type MerchantApiKeyUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checkoutBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type MerchantApiKeyUncheckedUpdateManyInput = {
@@ -338,6 +356,7 @@ export type MerchantApiKeyUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checkoutBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type MerchantApiKeyListRelationFilter = {
@@ -359,6 +378,7 @@ export type MerchantApiKeyCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
+  checkoutBaseUrl?: Prisma.SortOrder
 }
 
 export type MerchantApiKeyMaxOrderByAggregateInput = {
@@ -370,6 +390,7 @@ export type MerchantApiKeyMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
+  checkoutBaseUrl?: Prisma.SortOrder
 }
 
 export type MerchantApiKeyMinOrderByAggregateInput = {
@@ -381,6 +402,7 @@ export type MerchantApiKeyMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
+  checkoutBaseUrl?: Prisma.SortOrder
 }
 
 export type MerchantApiKeyCreateNestedManyWithoutUserInput = {
@@ -433,6 +455,7 @@ export type MerchantApiKeyCreateWithoutUserInput = {
   createdAt?: Date | string
   lastUsedAt?: Date | string | null
   revokedAt?: Date | string | null
+  checkoutBaseUrl?: string | null
 }
 
 export type MerchantApiKeyUncheckedCreateWithoutUserInput = {
@@ -443,6 +466,7 @@ export type MerchantApiKeyUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   lastUsedAt?: Date | string | null
   revokedAt?: Date | string | null
+  checkoutBaseUrl?: string | null
 }
 
 export type MerchantApiKeyCreateOrConnectWithoutUserInput = {
@@ -483,6 +507,7 @@ export type MerchantApiKeyScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"MerchantApiKey"> | Date | string
   lastUsedAt?: Prisma.DateTimeNullableFilter<"MerchantApiKey"> | Date | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"MerchantApiKey"> | Date | string | null
+  checkoutBaseUrl?: Prisma.StringNullableFilter<"MerchantApiKey"> | string | null
 }
 
 export type MerchantApiKeyCreateManyUserInput = {
@@ -493,6 +518,7 @@ export type MerchantApiKeyCreateManyUserInput = {
   createdAt?: Date | string
   lastUsedAt?: Date | string | null
   revokedAt?: Date | string | null
+  checkoutBaseUrl?: string | null
 }
 
 export type MerchantApiKeyUpdateWithoutUserInput = {
@@ -503,6 +529,7 @@ export type MerchantApiKeyUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checkoutBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type MerchantApiKeyUncheckedUpdateWithoutUserInput = {
@@ -513,6 +540,7 @@ export type MerchantApiKeyUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checkoutBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type MerchantApiKeyUncheckedUpdateManyWithoutUserInput = {
@@ -523,6 +551,7 @@ export type MerchantApiKeyUncheckedUpdateManyWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checkoutBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -536,6 +565,7 @@ export type MerchantApiKeySelect<ExtArgs extends runtime.Types.Extensions.Intern
   createdAt?: boolean
   lastUsedAt?: boolean
   revokedAt?: boolean
+  checkoutBaseUrl?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["merchantApiKey"]>
 
@@ -548,6 +578,7 @@ export type MerchantApiKeySelectCreateManyAndReturn<ExtArgs extends runtime.Type
   createdAt?: boolean
   lastUsedAt?: boolean
   revokedAt?: boolean
+  checkoutBaseUrl?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["merchantApiKey"]>
 
@@ -560,6 +591,7 @@ export type MerchantApiKeySelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   createdAt?: boolean
   lastUsedAt?: boolean
   revokedAt?: boolean
+  checkoutBaseUrl?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["merchantApiKey"]>
 
@@ -572,9 +604,10 @@ export type MerchantApiKeySelectScalar = {
   createdAt?: boolean
   lastUsedAt?: boolean
   revokedAt?: boolean
+  checkoutBaseUrl?: boolean
 }
 
-export type MerchantApiKeyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "keyPrefix" | "keyHash" | "createdAt" | "lastUsedAt" | "revokedAt", ExtArgs["result"]["merchantApiKey"]>
+export type MerchantApiKeyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "keyPrefix" | "keyHash" | "createdAt" | "lastUsedAt" | "revokedAt" | "checkoutBaseUrl", ExtArgs["result"]["merchantApiKey"]>
 export type MerchantApiKeyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -602,6 +635,10 @@ export type $MerchantApiKeyPayload<ExtArgs extends runtime.Types.Extensions.Inte
     createdAt: Date
     lastUsedAt: Date | null
     revokedAt: Date | null
+    /**
+     * Owner-configured public origin for hosted checkout links (/pay/…). Falls back to NEXT_PUBLIC_APP_URL when null.
+     */
+    checkoutBaseUrl: string | null
   }, ExtArgs["result"]["merchantApiKey"]>
   composites: {}
 }
@@ -1034,6 +1071,7 @@ export interface MerchantApiKeyFieldRefs {
   readonly createdAt: Prisma.FieldRef<"MerchantApiKey", 'DateTime'>
   readonly lastUsedAt: Prisma.FieldRef<"MerchantApiKey", 'DateTime'>
   readonly revokedAt: Prisma.FieldRef<"MerchantApiKey", 'DateTime'>
+  readonly checkoutBaseUrl: Prisma.FieldRef<"MerchantApiKey", 'String'>
 }
     
 

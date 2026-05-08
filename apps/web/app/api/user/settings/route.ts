@@ -12,14 +12,17 @@ export async function GET(request: Request) {
   try {
     const user = await prisma.user.findUnique({
       where: { privyDid },
-      select: { email: true, emailNotifications: true },
+      select: { email: true, notificationEmail: true, emailNotifications: true },
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json(user);
+    return NextResponse.json({
+      email: user.notificationEmail ?? user.email,
+      emailNotifications: user.emailNotifications,
+    });
   } catch (error) {
     console.error("Failed to fetch user settings:", error);
     return NextResponse.json({ error: "Failed to fetch user settings" }, { status: 500 });
@@ -35,15 +38,30 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "privyDid is required" }, { status: 400 });
     }
 
+    const notificationEmailUpdate =
+      email === undefined
+        ? {}
+        : {
+            notificationEmail:
+              typeof email === "string" && email.trim() === ""
+                ? null
+                : typeof email === "string"
+                  ? email.trim()
+                  : null,
+          };
+
     const user = await prisma.user.update({
       where: { privyDid },
       data: {
-        ...(email !== undefined && { email }),
+        ...notificationEmailUpdate,
         ...(emailNotifications !== undefined && { emailNotifications }),
       },
     });
 
-    return NextResponse.json({ email: user.email, emailNotifications: user.emailNotifications });
+    return NextResponse.json({
+      email: user.notificationEmail ?? user.email,
+      emailNotifications: user.emailNotifications,
+    });
   } catch (error) {
     console.error("Failed to update user settings:", error);
     return NextResponse.json({ error: "Failed to update user settings" }, { status: 500 });

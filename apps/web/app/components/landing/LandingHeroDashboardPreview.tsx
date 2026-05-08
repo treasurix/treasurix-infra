@@ -83,7 +83,7 @@ function IconCode({ className }: { className?: string }) {
 /** Static replica of the logged-in Treasurix dashboard (dark shell) for the marketing hero. */
 export function LandingHeroDashboardPreview() {
   return (
-    <div className="w-full hidden lg:block blur-md transition-all duration-300">
+    <div className="w-full hidden lg:block backdrop-blur-sm transition-all duration-300">
       
 
       <div className="relative mx-auto max-w-6xl">
@@ -216,7 +216,7 @@ export function LandingHeroDashboardPreview() {
                     label="Shielded volume"
                     value="1.000 SOL + 15.00 USDC"
                     sub="$104.61"
-                    caption="Cloak · devnet"
+                    caption="Cloak Shield Pool"
                     trend="Treasury deposit flow"
                     icon={<IconShield className="h-4 w-4" />}
                   />

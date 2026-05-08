@@ -24,6 +24,7 @@ export async function GET(request: Request) {
         keyPrefix: true,
         createdAt: true,
         lastUsedAt: true,
+        checkoutBaseUrl: true,
       },
     });
     return NextResponse.json(rows);

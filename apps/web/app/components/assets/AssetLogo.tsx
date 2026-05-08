@@ -18,14 +18,18 @@ type AssetLogoProps = {
   kind: AssetLogoKind;
   className?: string;
   title?: string;
+  /** When the asset name is shown beside the logo, hide duplicate text from assistive tech / broken-image fallback. */
+  decorative?: boolean;
 };
 
-export function AssetLogo({ kind, className, title }: AssetLogoProps) {
+export function AssetLogo({ kind, className, title, decorative }: AssetLogoProps) {
+  const defaultAlt = kind === "sol" ? "Solana" : "USDC";
   return (
     <img
       src={SRC[kind]}
-      alt={title ?? (kind === "sol" ? "Solana" : "USDC")}
+      alt={decorative ? "" : (title ?? defaultAlt)}
       title={title}
+      aria-hidden={decorative ? true : undefined}
       decoding="async"
       className={cn("object-contain", className ?? "h-8 w-8")}
     />
@@ -58,7 +62,7 @@ export function AssetBadge({
           badgeBox[size],
         )}
       >
-        <AssetLogo kind={kind} className={cn("object-contain", imgSize)} title={asset} />
+        <AssetLogo kind={kind} className={cn("object-contain", imgSize)} title={asset} decorative />
       </span>
       <span className="font-extreme text-ink text-sm">{asset}</span>
     </span>

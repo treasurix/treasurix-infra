@@ -80,6 +80,7 @@ export const UserScalarFieldEnum = {
   id: 'id',
   privyDid: 'privyDid',
   email: 'email',
+  notificationEmail: 'notificationEmail',
   emailNotifications: 'emailNotifications',
   walletAddress: 'walletAddress',
   lastSyncedAt: 'lastSyncedAt',
@@ -101,7 +102,8 @@ export const MerchantApiKeyScalarFieldEnum = {
   keyHash: 'keyHash',
   createdAt: 'createdAt',
   lastUsedAt: 'lastUsedAt',
-  revokedAt: 'revokedAt'
+  revokedAt: 'revokedAt',
+  checkoutBaseUrl: 'checkoutBaseUrl'
 } as const
 
 export type MerchantApiKeyScalarFieldEnum = (typeof MerchantApiKeyScalarFieldEnum)[keyof typeof MerchantApiKeyScalarFieldEnum]

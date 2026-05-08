@@ -293,7 +293,7 @@ export function DashboardOverview() {
               label="Shielded volume"
               value={displayValues?.volume ?? "—"}
               subValue={displayValues?.volumeUsd}
-              caption="Cloak · devnet"
+              caption="Cloak Shield Pool"
               trendLabel="Treasury deposit flow"
               icon={<IconShield />}
             />

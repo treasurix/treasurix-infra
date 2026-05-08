@@ -1,6 +1,6 @@
 {
   "name": "treasurix-checkout-sdk",
-  "version": "0.1.6",
+  "version": "0.1.10",
   "description": "Server-side Treasurix checkout client — payment links authenticated with your dashboard API key; settlements accrue to your treasury pool.",
   "license": "MIT",
   "repository": {

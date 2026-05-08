@@ -25,12 +25,14 @@ export function isMerchantApiKeyFormat(token: string): boolean {
   return token.startsWith(MERCHANT_API_KEY_PREFIX) && token.length > MERCHANT_API_KEY_PREFIX.length + 16;
 }
 
-export async function verifyMerchantApiKey(rawKey: string): Promise<{ userId: string; keyId: string } | null> {
+export async function verifyMerchantApiKey(
+  rawKey: string,
+): Promise<{ userId: string; keyId: string; checkoutBaseUrl: string | null } | null> {
   if (!isMerchantApiKeyFormat(rawKey)) return null;
   const digest = hashMerchantApiKey(rawKey);
   const row = await prisma.merchantApiKey.findFirst({
     where: { keyHash: digest, revokedAt: null },
-    select: { id: true, userId: true },
+    select: { id: true, userId: true, checkoutBaseUrl: true },
   });
   if (!row) return null;
 
@@ -39,5 +41,5 @@ export async function verifyMerchantApiKey(rawKey: string): Promise<{ userId: st
     data: { lastUsedAt: new Date() },
   });
 
-  return { userId: row.userId, keyId: row.id };
+  return { userId: row.userId, keyId: row.id, checkoutBaseUrl: row.checkoutBaseUrl };
 }

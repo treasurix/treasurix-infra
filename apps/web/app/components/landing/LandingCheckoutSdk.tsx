@@ -4,9 +4,10 @@ import { codeToHtml } from "shiki";
 /** Source shown on the marketing site — keep in sync with `treasurix-checkout-sdk` API. */
 export const LANDING_CHECKOUT_SDK_SNIPPET = `import { TreasurixCheckoutClient } from "treasurix-checkout-sdk";
 
+// Integrators pass only the secret. Owner sets TREASURIX_ORIGIN on this server (Treasurix API origin).
+// Public pay-link host is configured by the owner in the dashboard (per API key).
 const client = new TreasurixCheckoutClient({
   apiKey: process.env.TREASURIX_API_KEY!,
-  baseUrl: process.env.TREASURIX_BASE_URL,
 });
 
 const session = await client.createCheckoutSession({
@@ -42,8 +43,8 @@ export async function LandingCheckoutSdk() {
               Create checkout in a few lines
             </h2>
             <p className="mt-3 max-w-xl text-base font-medium leading-relaxed text-subtext">
-              Give developers a short path from API key to a live payment flow — hosted pay links settle into the same treasury
-              you see in the dashboard.
+              Developers wire up checkout with a server-side API key; you choose the public pay-link URL per key in the dashboard
+              (or rely on Treasurix defaults). Hosted links still settle into the same treasury you see here.
             </p>
 
             <div className="landing-sdk-shiki mt-8 overflow-hidden rounded-2xl border border-slate-800/80 bg-[#0d1117] shadow-inner dark:border-slate-700/90">

@@ -1,5 +1,6 @@
 "use client";
 
+import "@/lib/cloak-browser-shim";
 import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import { TreasurixMark } from "./TreasurixMark";
@@ -13,12 +14,20 @@ import { SuccessModal } from "./ui/SuccessModal";
 import { AssetLogo, assetKindFromLabel } from "@/app/components/assets/AssetLogo";
 import type { DemoCheckoutLink } from "./CheckoutConsole";
 
+/** ~4× Solana base signature fee (5,000 lamports each) — estimate for devnet checkout flow; not a live quote. */
+const EST_NETWORK_FEE_LAMPORTS = BigInt(20_000);
+
+function formatEstSolGas(lamports: bigint): string {
+  const sol = Number(lamports) / 1e9;
+  return sol.toLocaleString("en-US", { minimumFractionDigits: 5, maximumFractionDigits: 6 });
+}
+
 /* ── Wallet helper ──────────────────────────────────────────────────── */
 
 function buildCloakWalletOptions(wallet: ConnectedStandardSolanaWallet) {
   const depositorPublicKey = new PublicKey(wallet.address);
 
-  const signTransaction = async <T extends Transaction | VersionedTransaction>(tx: T): Promise<T> => {
+  const signTransaction = async <T extends Transaction | VersionedTransaction,>(tx: T): Promise<T> => {
     const raw =
       tx instanceof VersionedTransaction
         ? tx.serialize()
@@ -49,12 +58,17 @@ export function PaymentCheckout({ link }: { link: DemoCheckoutLink }) {
 
   const [status, setStatus] = useState<"idle" | "busy" | "success" | "error">("idle");
   const [log, setLog] = useState<string | null>(null);
+  const [checkoutProgress, setCheckoutProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [txSignature, setTxSignature] = useState<string | null>(null);
   const [isSettledLocal, setIsSettledLocal] = useState(false);
 
   const isSettled = link.status === "settled" || isSettledLocal;
   const isExpired = link.status === "expired";
+
+  const bumpProgress = useCallback((n: number) => {
+    setCheckoutProgress((p) => Math.max(p, Math.min(100, n)));
+  }, []);
 
   const handlePay = useCallback(async () => {
     if (!primaryWallet) return;
@@ -64,7 +78,9 @@ export function PaymentCheckout({ link }: { link: DemoCheckoutLink }) {
     // use dashboard checkout shield to accrue funds into the merchant private balance.
     
     setStatus("busy");
+    setCheckoutProgress(0);
     setLog("Initializing Cloak SDK…");
+    bumpProgress(5);
     setErrorMessage(null);
 
     try {
@@ -79,6 +95,7 @@ export function PaymentCheckout({ link }: { link: DemoCheckoutLink }) {
         transact,
       } = await import("@cloak.dev/sdk-devnet");
 
+      bumpProgress(12);
       const connection = getDevnetConnection();
       const walletOpts = buildCloakWalletOptions(primaryWallet);
       
@@ -91,11 +108,13 @@ export function PaymentCheckout({ link }: { link: DemoCheckoutLink }) {
 
 
       setLog("Generating cryptographic keypairs…");
+      bumpProgress(18);
       const senderUtxoKeypair = await generateUtxoKeypair();
       const senderNk = getNkFromUtxoPrivateKey(senderUtxoKeypair.privateKey);
 
       // 1. Register Viewing Key
       setLog("Registering viewing key for privacy…");
+      bumpProgress(24);
       const { registerViewingKey } = await import("@cloak.dev/sdk-devnet");
       await registerViewingKey(
         CLOAK_DEVNET_RELAY_URL,
@@ -108,6 +127,7 @@ export function PaymentCheckout({ link }: { link: DemoCheckoutLink }) {
       // CRITICAL: For USDC, the zero UTXO must match the output mint.
       // Docs: "createZeroUtxo(MINT) — circuit requires the padding zero UTXO to match the output mint."
       setLog(`Shielding ${amount} ${isUsdc ? "USDC" : "SOL"}…`);
+      bumpProgress(30);
       const depositOutput = await createUtxo(finalAmount, senderUtxoKeypair, mint);
       const zeroUtxo = isUsdc
         ? await createZeroUtxo(SDK_USDC_MINT)
@@ -115,6 +135,20 @@ export function PaymentCheckout({ link }: { link: DemoCheckoutLink }) {
 
 
       setLog("Generating zk-SNARK proof (this may take up to 45 seconds)…");
+      bumpProgress(34);
+
+      const inferProgressFromMsg = (msg: string) => {
+        const lower = msg.toLowerCase();
+        if (lower.includes("zk") || lower.includes("snark") || lower.includes("proving") || lower.includes("circuit")) {
+          bumpProgress(48);
+        } else if (lower.includes("relay")) {
+          bumpProgress(56);
+        } else if (lower.includes("sign") || lower.includes("send") || lower.includes("broadcast")) {
+          bumpProgress(52);
+        } else {
+          bumpProgress(42);
+        }
+      };
 
       const depositResult = await transact(
         {
@@ -132,25 +166,45 @@ export function PaymentCheckout({ link }: { link: DemoCheckoutLink }) {
           enforceViewingKeyRegistration: false,
           onProgress: (msg) => {
             setLog(msg);
+            inferProgressFromMsg(msg);
           },
         }
       );
 
+      bumpProgress(62);
       const shieldedUtxo = depositResult.outputUtxos[0];
 
       setLog("Deposit confirmed. Preparing merchant transfer…");
+      bumpProgress(64);
 
       // 3. Transfer shielded funds to the merchant's wallet
       // Wait for on-chain commitment to settle (required by docs)
       setLog("Waiting for on-chain commitment to settle (≈20s)…");
-      await new Promise((resolve) => setTimeout(resolve, 20_000));
+      for (let step = 0; step <= 20; step++) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        bumpProgress(64 + Math.floor((step / 20) * 10));
+      }
 
       // Generate a recipient UTXO keypair for the merchant
+      bumpProgress(76);
       const recipientUtxoKeypair = await generateUtxoKeypair();
       const recipientOutput = await createUtxo(finalAmount, recipientUtxoKeypair, mint);
 
       setLog("Transferring shielded funds to merchant…");
+      bumpProgress(78);
 
+      const inferProgressFromMsgTransfer = (msg: string) => {
+        const lower = msg.toLowerCase();
+        if (lower.includes("zk") || lower.includes("snark") || lower.includes("proving") || lower.includes("circuit")) {
+          bumpProgress(88);
+        } else if (lower.includes("relay")) {
+          bumpProgress(94);
+        } else if (lower.includes("sign") || lower.includes("send") || lower.includes("broadcast")) {
+          bumpProgress(90);
+        } else {
+          bumpProgress(82);
+        }
+      };
 
       const transferResult = await transact(
         {
@@ -169,11 +223,13 @@ export function PaymentCheckout({ link }: { link: DemoCheckoutLink }) {
           enforceViewingKeyRegistration: false,
           onProgress: (msg) => {
             setLog(msg);
+            inferProgressFromMsgTransfer(msg);
           },
         }
       );
 
 
+      bumpProgress(100);
       setTxSignature(transferResult.signature);
       setIsSettledLocal(true);
       setStatus("success");
@@ -227,8 +283,9 @@ export function PaymentCheckout({ link }: { link: DemoCheckoutLink }) {
       setErrorMessage(msg);
       setStatus("error");
       setLog(null);
+      setCheckoutProgress(0);
     }
-  }, [link, primaryWallet, getAccessToken]);
+  }, [link, primaryWallet, getAccessToken, bumpProgress]);
 
   const explorerUrl = (sig: string) =>
     `https://solscan.io/tx/${encodeURIComponent(sig)}?cluster=devnet`;
@@ -253,7 +310,12 @@ export function PaymentCheckout({ link }: { link: DemoCheckoutLink }) {
               <h1 className="font-display text-6xl font-extreme tracking-tighter text-ink lg:text-7xl">
                 {link.amount}
                 <span className="ml-3 inline-flex items-center gap-2 text-2xl font-medium text-accent">
-                  <AssetLogo kind={assetKindFromLabel(link.asset)} className="h-8 w-8 lg:h-10 lg:w-10" title={link.asset} />
+                  <AssetLogo
+                    kind={assetKindFromLabel(link.asset)}
+                    className="h-8 w-8 lg:h-10 lg:w-10"
+                    decorative
+                    title={link.asset}
+                  />
                   {link.asset}
                 </span>
               </h1>
@@ -268,25 +330,47 @@ export function PaymentCheckout({ link }: { link: DemoCheckoutLink }) {
               <span className="font-medium text-subtext">Amount</span>
               <span className="flex items-center gap-2 font-bold text-ink">
                 <span className="tabular-nums">{link.amount}</span>
-                <AssetLogo kind={assetKindFromLabel(link.asset)} className="h-4 w-4" title={link.asset} />
-                {link.asset}
+                <AssetLogo
+                  kind={assetKindFromLabel(link.asset)}
+                  className="h-4 w-4"
+                  decorative
+                  title={link.asset}
+                />
+                <span>{link.asset}</span>
               </span>
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-medium text-subtext">Fee</span>
-              <span className="flex items-center gap-2 font-bold text-emerald-500">
-                <span className="tabular-nums">0.00</span>
-                <AssetLogo kind={assetKindFromLabel(link.asset)} className="h-4 w-4" title={link.asset} />
-                {link.asset}
+            <div className="flex items-start justify-between gap-3 text-sm">
+              <div className="min-w-0">
+                <span className="font-medium text-subtext">Gas fee </span>
+                <span className="text-[11px] font-medium normal-case tracking-normal text-quiet">(est.)</span>
+                <p className="mt-1 text-[10px] font-medium leading-snug text-quiet">
+                  Solana network fee (~{EST_NETWORK_FEE_LAMPORTS.toString()} lamports · multi-sig estimate)
+                </p>
+              </div>
+              <span className="flex shrink-0 items-center gap-2 font-bold text-ink">
+                <span className="tabular-nums">~{formatEstSolGas(EST_NETWORK_FEE_LAMPORTS)}</span>
+                <AssetLogo kind="sol" className="h-4 w-4" decorative title="SOL (gas)" />
+                <span>SOL</span>
               </span>
             </div>
-            <div className="border-t border-hairline pt-4 flex items-center justify-between">
-              <span className="text-base font-extreme text-ink">Total due</span>
-              <span className="flex items-center gap-2 text-xl font-extreme text-accent">
-                <span className="tabular-nums">{link.amount}</span>
-                <AssetLogo kind={assetKindFromLabel(link.asset)} className="h-5 w-5" title={link.asset} />
-                {link.asset}
-              </span>
+            <div className="border-t border-hairline pt-4 flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="text-base font-extreme text-ink">Total due</span>
+                <span className="flex items-center gap-2 text-xl font-extreme text-accent">
+                  <span className="tabular-nums">{link.amount}</span>
+                  <AssetLogo
+                    kind={assetKindFromLabel(link.asset)}
+                    className="h-5 w-5"
+                    decorative
+                    title={link.asset}
+                  />
+                  <span>{link.asset}</span>
+                </span>
+              </div>
+              <p className="text-[10px] font-medium leading-relaxed text-quiet">
+                Solana fees are paid from your wallet in SOL (estimate above), on top of this total when the charge is in{" "}
+                {link.asset}.
+              </p>
             </div>
           </div>
 
@@ -388,8 +472,10 @@ export function PaymentCheckout({ link }: { link: DemoCheckoutLink }) {
                         <button 
                           onClick={() => {
                             void navigator.clipboard.writeText(primaryWallet.address);
-                            setLog("Address copied to clipboard");
-                            setTimeout(() => setLog(null), 2000);
+                            if (status !== "busy") {
+                              setLog("Address copied to clipboard");
+                              setTimeout(() => setLog(null), 2000);
+                            }
                           }}
                           className="mt-1 block w-full text-left truncate font-mono text-sm font-bold text-ink hover:text-accent transition-colors active:scale-[0.98]"
                           title="Click to copy address"
@@ -425,13 +511,38 @@ export function PaymentCheckout({ link }: { link: DemoCheckoutLink }) {
                     </p>
                   </div>
 
-                  {/* Log or Error */}
-                  {log && (
+                  {/* Progress + status while paying; idle copy-toast when not busy */}
+                  {status === "busy" ? (
+                    <div className="space-y-3 rounded-2xl border border-hairline bg-surface-soft px-4 py-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[10px] font-extreme uppercase tracking-widest text-quiet">
+                          Checkout progress
+                        </span>
+                        <span className="tabular-nums text-xs font-bold text-ink">{Math.round(checkoutProgress)}%</span>
+                      </div>
+                      <div className="h-2.5 w-full overflow-hidden rounded-full bg-hairline">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-accent to-fuchsia-500 transition-[width] duration-500 ease-out"
+                          style={{ width: `${checkoutProgress}%` }}
+                          role="progressbar"
+                          aria-valuenow={Math.round(checkoutProgress)}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-label="Estimated checkout progress"
+                        />
+                      </div>
+                      <p className="flex items-start gap-2 text-xs font-bold text-subtext">
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent animate-pulse" aria-hidden />
+                        <span>{log ?? "Working…"}</span>
+                      </p>
+                   
+                    </div>
+                  ) : log ? (
                     <div className="flex items-center gap-3 rounded-2xl bg-surface-soft px-4 py-3 border border-hairline">
                       <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
                       <p className="text-xs font-bold text-subtext">{log}</p>
                     </div>
-                  )}
+                  ) : null}
                   {errorMessage && (
                     <div className="rounded-2xl bg-red-500/10 border border-red-500/20 p-4">
                       <p className="text-xs font-bold text-red-500">{errorMessage}</p>

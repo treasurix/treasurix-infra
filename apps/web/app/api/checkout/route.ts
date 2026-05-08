@@ -12,18 +12,46 @@ function getBearer(request: Request): string | null {
   return auth.slice(7).trim();
 }
 
+function normalizeCheckoutBase(url: string): string {
+  return url.trim().replace(/\/$/, "");
+}
+
+function resolveCheckoutLinkBase(
+  request: Request,
+  checkoutBaseUrlFromKey: string | null | undefined,
+): string {
+  const fromKey = checkoutBaseUrlFromKey?.trim();
+  if (fromKey) {
+    try {
+      const u = new URL(fromKey);
+      if (u.protocol === "http:" || u.protocol === "https:") {
+        return normalizeCheckoutBase(`${u.protocol}//${u.host}`);
+      }
+    } catch {
+      /* fall through */
+    }
+  }
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (envUrl) return normalizeCheckoutBase(envUrl);
+  try {
+    return normalizeCheckoutBase(new URL(request.url).origin);
+  } catch {
+    return "http://localhost:3000";
+  }
+}
+
 /** Resolve merchant internal UUID: Bearer `trx_live_…` API key, or legacy body `merchantId` (Privy DID). */
 async function resolveMerchantInternalId(
   request: Request,
   bodyMerchantId: string | undefined,
-): Promise<{ userId: string } | { error: NextResponse }> {
+): Promise<{ userId: string; checkoutBaseUrl?: string | null } | { error: NextResponse }> {
   const token = getBearer(request);
   if (token && isMerchantApiKeyFormat(token)) {
     const v = await verifyMerchantApiKey(token);
     if (!v) {
       return { error: NextResponse.json({ error: "Invalid or revoked API key" }, { status: 401 }) };
     }
-    return { userId: v.userId };
+    return { userId: v.userId, checkoutBaseUrl: v.checkoutBaseUrl };
   }
 
   if (!bodyMerchantId) {
@@ -131,8 +159,11 @@ export async function POST(request: Request) {
       },
     });
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const checkoutUrl = `${baseUrl}/pay/${slug}`;
+    const linkBase = resolveCheckoutLinkBase(
+      request,
+      "checkoutBaseUrl" in resolved ? resolved.checkoutBaseUrl : undefined,
+    );
+    const checkoutUrl = `${linkBase}/pay/${slug}`;
 
     if (customerEmail) {
       try {
@@ -186,7 +217,7 @@ export async function PATCH(request: Request) {
         if (isEmailDeliveryEnabled()) {
           const merchantName = "Treasurix Merchant";
           const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard`;
-          const merchantEmail = link.merchant.email;
+          const merchantEmail = link.merchant.notificationEmail ?? link.merchant.email;
 
           if (merchantEmail) {
             await sendMerchantPaymentSucceededEmail({

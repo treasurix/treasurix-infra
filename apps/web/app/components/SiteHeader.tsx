@@ -60,20 +60,28 @@ export function SiteHeader() {
           }`}
       >
         <div className="mx-auto max-w-content px-6 sm:px-8">
-          <div className={`flex items-center justify-between gap-6 rounded-[2rem] px-6 py-4 transition-all duration-500 border border-transparent ${scrolled
+          <div className={`flex items-center justify-between gap-6  rounded-[2rem] px-6 py-4 transition-all duration-500 border border-transparent ${scrolled
             ? "bg-canvas/80 backdrop-blur-xl shadow-2xl border-hairline translate-y-2"
             : "bg-transparent"
             }`}>
-            <Link href="/" className="group flex items-center gap-3">
-              <TreasurixMark
-                size={32}
-                className="shrink-0 transition-transform group-hover:scale-110"
-              />
-              <span className="font-display text-xl font-extreme tracking-tighter text-ink">
-                Treasurix
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+              <Link href="/" className="group flex min-w-0 items-center gap-2 sm:gap-3">
+                <TreasurixMark
+                  size={32}
+                  className="shrink-0 transition-transform group-hover:scale-110"
+                />
+                <span className="font-display text-xl font-extreme tracking-tighter text-ink">
+                  Treasurix
+                </span>
+              </Link>
+              <span
+                className="inline-flex shrink-0 items-center gap-1 rounded-full border border-hairline bg-surface-soft/80 px-2 py-0.5 text-[10px] font-extreme uppercase tracking-wider text-ink shadow-sm backdrop-blur-sm sm:gap-1.5 sm:px-2.5 sm:py-1 sm:text-[11px] sm:tracking-widest"
+                title="Treasurix runs on Solana devnet"
+              >
+                <span className="flex h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
+                <span className="whitespace-nowrap">Solana Devnet</span>
               </span>
-            </Link>
-
+            </div>
             <nav className="hidden items-center gap-10 md:flex" aria-label="Primary">
               {links.map((l) => (
                 <a

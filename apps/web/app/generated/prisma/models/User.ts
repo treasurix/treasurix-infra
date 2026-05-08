@@ -28,6 +28,7 @@ export type UserMinAggregateOutputType = {
   id: string | null
   privyDid: string | null
   email: string | null
+  notificationEmail: string | null
   emailNotifications: boolean | null
   walletAddress: string | null
   lastSyncedAt: Date | null
@@ -42,6 +43,7 @@ export type UserMaxAggregateOutputType = {
   id: string | null
   privyDid: string | null
   email: string | null
+  notificationEmail: string | null
   emailNotifications: boolean | null
   walletAddress: string | null
   lastSyncedAt: Date | null
@@ -56,6 +58,7 @@ export type UserCountAggregateOutputType = {
   id: number
   privyDid: number
   email: number
+  notificationEmail: number
   emailNotifications: number
   walletAddress: number
   lastSyncedAt: number
@@ -72,6 +75,7 @@ export type UserMinAggregateInputType = {
   id?: true
   privyDid?: true
   email?: true
+  notificationEmail?: true
   emailNotifications?: true
   walletAddress?: true
   lastSyncedAt?: true
@@ -86,6 +90,7 @@ export type UserMaxAggregateInputType = {
   id?: true
   privyDid?: true
   email?: true
+  notificationEmail?: true
   emailNotifications?: true
   walletAddress?: true
   lastSyncedAt?: true
@@ -100,6 +105,7 @@ export type UserCountAggregateInputType = {
   id?: true
   privyDid?: true
   email?: true
+  notificationEmail?: true
   emailNotifications?: true
   walletAddress?: true
   lastSyncedAt?: true
@@ -187,6 +193,7 @@ export type UserGroupByOutputType = {
   id: string
   privyDid: string
   email: string | null
+  notificationEmail: string | null
   emailNotifications: boolean
   walletAddress: string | null
   lastSyncedAt: Date | null
@@ -222,6 +229,7 @@ export type UserWhereInput = {
   id?: Prisma.StringFilter<"User"> | string
   privyDid?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringNullableFilter<"User"> | string | null
+  notificationEmail?: Prisma.StringNullableFilter<"User"> | string | null
   emailNotifications?: Prisma.BoolFilter<"User"> | boolean
   walletAddress?: Prisma.StringNullableFilter<"User"> | string | null
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -241,6 +249,7 @@ export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   privyDid?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
+  notificationEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   emailNotifications?: Prisma.SortOrder
   walletAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -263,6 +272,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   email?: Prisma.StringNullableFilter<"User"> | string | null
+  notificationEmail?: Prisma.StringNullableFilter<"User"> | string | null
   emailNotifications?: Prisma.BoolFilter<"User"> | boolean
   walletAddress?: Prisma.StringNullableFilter<"User"> | string | null
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -282,6 +292,7 @@ export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   privyDid?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
+  notificationEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   emailNotifications?: Prisma.SortOrder
   walletAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -302,6 +313,7 @@ export type UserScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"User"> | string
   privyDid?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  notificationEmail?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   emailNotifications?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   walletAddress?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   lastSyncedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -316,6 +328,7 @@ export type UserCreateInput = {
   id?: string
   privyDid: string
   email?: string | null
+  notificationEmail?: string | null
   emailNotifications?: boolean
   walletAddress?: string | null
   lastSyncedAt?: Date | string | null
@@ -335,6 +348,7 @@ export type UserUncheckedCreateInput = {
   id?: string
   privyDid: string
   email?: string | null
+  notificationEmail?: string | null
   emailNotifications?: boolean
   walletAddress?: string | null
   lastSyncedAt?: Date | string | null
@@ -354,6 +368,7 @@ export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   privyDid?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
   walletAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -373,6 +388,7 @@ export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   privyDid?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
   walletAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -392,6 +408,7 @@ export type UserCreateManyInput = {
   id?: string
   privyDid: string
   email?: string | null
+  notificationEmail?: string | null
   emailNotifications?: boolean
   walletAddress?: string | null
   lastSyncedAt?: Date | string | null
@@ -406,6 +423,7 @@ export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   privyDid?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
   walletAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -420,6 +438,7 @@ export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   privyDid?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
   walletAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -434,6 +453,7 @@ export type UserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   privyDid?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  notificationEmail?: Prisma.SortOrder
   emailNotifications?: Prisma.SortOrder
   walletAddress?: Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrder
@@ -448,6 +468,7 @@ export type UserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   privyDid?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  notificationEmail?: Prisma.SortOrder
   emailNotifications?: Prisma.SortOrder
   walletAddress?: Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrder
@@ -462,6 +483,7 @@ export type UserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   privyDid?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  notificationEmail?: Prisma.SortOrder
   emailNotifications?: Prisma.SortOrder
   walletAddress?: Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrder
@@ -571,6 +593,7 @@ export type UserCreateWithoutMerchantApiKeysInput = {
   id?: string
   privyDid: string
   email?: string | null
+  notificationEmail?: string | null
   emailNotifications?: boolean
   walletAddress?: string | null
   lastSyncedAt?: Date | string | null
@@ -589,6 +612,7 @@ export type UserUncheckedCreateWithoutMerchantApiKeysInput = {
   id?: string
   privyDid: string
   email?: string | null
+  notificationEmail?: string | null
   emailNotifications?: boolean
   walletAddress?: string | null
   lastSyncedAt?: Date | string | null
@@ -623,6 +647,7 @@ export type UserUpdateWithoutMerchantApiKeysInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   privyDid?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
   walletAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -641,6 +666,7 @@ export type UserUncheckedUpdateWithoutMerchantApiKeysInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   privyDid?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
   walletAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -659,6 +685,7 @@ export type UserCreateWithoutMembershipsInput = {
   id?: string
   privyDid: string
   email?: string | null
+  notificationEmail?: string | null
   emailNotifications?: boolean
   walletAddress?: string | null
   lastSyncedAt?: Date | string | null
@@ -677,6 +704,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   id?: string
   privyDid: string
   email?: string | null
+  notificationEmail?: string | null
   emailNotifications?: boolean
   walletAddress?: string | null
   lastSyncedAt?: Date | string | null
@@ -711,6 +739,7 @@ export type UserUpdateWithoutMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   privyDid?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
   walletAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -729,6 +758,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   privyDid?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
   walletAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -747,6 +777,7 @@ export type UserCreateWithoutCheckoutLinksInput = {
   id?: string
   privyDid: string
   email?: string | null
+  notificationEmail?: string | null
   emailNotifications?: boolean
   walletAddress?: string | null
   lastSyncedAt?: Date | string | null
@@ -765,6 +796,7 @@ export type UserUncheckedCreateWithoutCheckoutLinksInput = {
   id?: string
   privyDid: string
   email?: string | null
+  notificationEmail?: string | null
   emailNotifications?: boolean
   walletAddress?: string | null
   lastSyncedAt?: Date | string | null
@@ -799,6 +831,7 @@ export type UserUpdateWithoutCheckoutLinksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   privyDid?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
   walletAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -817,6 +850,7 @@ export type UserUncheckedUpdateWithoutCheckoutLinksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   privyDid?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
   walletAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -835,6 +869,7 @@ export type UserCreateWithoutTreasuryWithdrawalsInput = {
   id?: string
   privyDid: string
   email?: string | null
+  notificationEmail?: string | null
   emailNotifications?: boolean
   walletAddress?: string | null
   lastSyncedAt?: Date | string | null
@@ -853,6 +888,7 @@ export type UserUncheckedCreateWithoutTreasuryWithdrawalsInput = {
   id?: string
   privyDid: string
   email?: string | null
+  notificationEmail?: string | null
   emailNotifications?: boolean
   walletAddress?: string | null
   lastSyncedAt?: Date | string | null
@@ -887,6 +923,7 @@ export type UserUpdateWithoutTreasuryWithdrawalsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   privyDid?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
   walletAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -905,6 +942,7 @@ export type UserUncheckedUpdateWithoutTreasuryWithdrawalsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   privyDid?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
   walletAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -923,6 +961,7 @@ export type UserCreateWithoutTreasuryCloakStateInput = {
   id?: string
   privyDid: string
   email?: string | null
+  notificationEmail?: string | null
   emailNotifications?: boolean
   walletAddress?: string | null
   lastSyncedAt?: Date | string | null
@@ -941,6 +980,7 @@ export type UserUncheckedCreateWithoutTreasuryCloakStateInput = {
   id?: string
   privyDid: string
   email?: string | null
+  notificationEmail?: string | null
   emailNotifications?: boolean
   walletAddress?: string | null
   lastSyncedAt?: Date | string | null
@@ -975,6 +1015,7 @@ export type UserUpdateWithoutTreasuryCloakStateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   privyDid?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
   walletAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -993,6 +1034,7 @@ export type UserUncheckedUpdateWithoutTreasuryCloakStateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   privyDid?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
   walletAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1069,6 +1111,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   id?: boolean
   privyDid?: boolean
   email?: boolean
+  notificationEmail?: boolean
   emailNotifications?: boolean
   walletAddress?: boolean
   lastSyncedAt?: boolean
@@ -1089,6 +1132,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   privyDid?: boolean
   email?: boolean
+  notificationEmail?: boolean
   emailNotifications?: boolean
   walletAddress?: boolean
   lastSyncedAt?: boolean
@@ -1103,6 +1147,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   privyDid?: boolean
   email?: boolean
+  notificationEmail?: boolean
   emailNotifications?: boolean
   walletAddress?: boolean
   lastSyncedAt?: boolean
@@ -1117,6 +1162,7 @@ export type UserSelectScalar = {
   id?: boolean
   privyDid?: boolean
   email?: boolean
+  notificationEmail?: boolean
   emailNotifications?: boolean
   walletAddress?: boolean
   lastSyncedAt?: boolean
@@ -1127,7 +1173,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "privyDid" | "email" | "emailNotifications" | "walletAddress" | "lastSyncedAt" | "lastTxSignature" | "lastTxKind" | "lastTxAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "privyDid" | "email" | "notificationEmail" | "emailNotifications" | "walletAddress" | "lastSyncedAt" | "lastTxSignature" | "lastTxKind" | "lastTxAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   checkoutLinks?: boolean | Prisma.User$checkoutLinksArgs<ExtArgs>
@@ -1151,7 +1197,14 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     privyDid: string
+    /**
+     * Linked login email from Privy (sync). Do not use for merchant notification prefs — see notificationEmail.
+     */
     email: string | null
+    /**
+     * Merchant-configured address for checkout / settlement emails (Webhooks & Notifications). Not overwritten by auth sync.
+     */
+    notificationEmail: string | null
     emailNotifications: boolean
     walletAddress: string | null
     /**
@@ -1597,6 +1650,7 @@ export interface UserFieldRefs {
   readonly id: Prisma.FieldRef<"User", 'String'>
   readonly privyDid: Prisma.FieldRef<"User", 'String'>
   readonly email: Prisma.FieldRef<"User", 'String'>
+  readonly notificationEmail: Prisma.FieldRef<"User", 'String'>
   readonly emailNotifications: Prisma.FieldRef<"User", 'Boolean'>
   readonly walletAddress: Prisma.FieldRef<"User", 'String'>
   readonly lastSyncedAt: Prisma.FieldRef<"User", 'DateTime'>

@@ -12,7 +12,10 @@ datasource db {
 model User {
   id                 String    @id @default(uuid())
   privyDid           String    @unique @map("privy_did")
+  /// Linked login email from Privy (sync). Do not use for merchant notification prefs — see notificationEmail.
   email              String?
+  /// Merchant-configured address for checkout / settlement emails (Webhooks & Notifications). Not overwritten by auth sync.
+  notificationEmail  String?   @map("notification_email")
   emailNotifications Boolean   @default(false) @map("email_notifications")
   walletAddress      String?   @map("wallet_address")
   /// Last successful `/api/auth/sync` (login refresh or client ping).
@@ -44,6 +47,8 @@ model MerchantApiKey {
   createdAt  DateTime  @default(now()) @map("created_at")
   lastUsedAt DateTime? @map("last_used_at")
   revokedAt  DateTime? @map("revoked_at")
+  /// Owner-configured public origin for hosted checkout links (/pay/…). Falls back to NEXT_PUBLIC_APP_URL when null.
+  checkoutBaseUrl String? @map("checkout_base_url")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
