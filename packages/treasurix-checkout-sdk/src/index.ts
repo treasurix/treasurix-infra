@@ -19,6 +19,9 @@ export type CreateCheckoutResult = CheckoutLinkRecord & {
   checkoutUrl: string;
 };
 
+/** Hosted Treasurix API origin when no {@link TreasurixCheckoutClientOptions.treasurixOrigin} or `TREASURIX_ORIGIN` is set. */
+export const DEFAULT_TREASURIX_ORIGIN = "https://treasurix.vercel.app";
+
 export type TreasurixCheckoutClientOptions = {
   /**
    * Secret key from the Treasurix dashboard (starts with `trx_live_`).
@@ -26,9 +29,9 @@ export type TreasurixCheckoutClientOptions = {
    */
   apiKey: string;
   /**
-   * Origin where your Treasurix app serves `/api/checkout` (e.g. `https://pay.example.com`).
-   * **Owner / DevOps** sets `TREASURIX_ORIGIN` (or legacy `TREASURIX_BASE_URL`) on the server once per deployment.
-   * Application code can pass **only `apiKey`** when that env var is set. Defaults to `http://localhost:3000` for local Treasurix.
+   * Origin where your Treasurix app serves `/api/checkout` (e.g. self-hosted `https://pay.example.com`).
+   * Omit when using the hosted app at {@link DEFAULT_TREASURIX_ORIGIN} — then **only `apiKey`** is required.
+   * For a **local** Treasurix dev server, set `TREASURIX_ORIGIN=http://localhost:3000` or pass `treasurixOrigin` here.
    */
   treasurixOrigin?: string;
   /**
@@ -56,7 +59,7 @@ function resolveTreasurixOrigin(options: TreasurixCheckoutClientOptions): string
     options.treasurixOrigin?.trim() ??
     options.baseUrl?.trim() ??
     fromEnv ??
-    "http://localhost:3000";
+    DEFAULT_TREASURIX_ORIGIN;
   return raw.replace(/\/$/, "");
 }
 

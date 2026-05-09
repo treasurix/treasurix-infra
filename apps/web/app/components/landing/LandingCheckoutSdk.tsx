@@ -4,7 +4,7 @@ import { codeToHtml } from "shiki";
 /** Source shown on the marketing site — keep in sync with `treasurix-checkout-sdk` API. */
 export const LANDING_CHECKOUT_SDK_SNIPPET = `import { TreasurixCheckoutClient } from "treasurix-checkout-sdk";
 
-// Integrators pass only the secret. Owner sets TREASURIX_ORIGIN on this server (Treasurix API origin).
+// For a self-hosted or local Treasurix, set TREASURIX_ORIGIN (or treasurixOrigin) on this server.
 // Public pay-link host is configured by the owner in the dashboard (per API key).
 const client = new TreasurixCheckoutClient({
   apiKey: process.env.TREASURIX_API_KEY!,

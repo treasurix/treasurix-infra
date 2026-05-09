@@ -196,7 +196,7 @@ const session = await client.createCheckoutSession({
 console.log(session.checkoutUrl);
 ```
 
-Set `TREASURIX_ORIGIN` on the merchant server to the HTTPS origin where Treasurix serves `/api/checkout`. Details: [packages/treasurix-checkout-sdk/README.md](./packages/treasurix-checkout-sdk/README.md).
+Set `TREASURIX_ORIGIN` only when your backend should not use the default hosted API at `https://treasurix.vercel.app` (e.g. self-hosted Treasurix or `http://localhost:3000` for local dev). Details: [packages/treasurix-checkout-sdk/README.md](./packages/treasurix-checkout-sdk/README.md).
 
 ---
 

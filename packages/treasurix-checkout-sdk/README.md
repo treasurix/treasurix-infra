@@ -66,10 +66,8 @@ Then commit, optionally tag (`git tag treasurix-checkout-sdk-v0.1.8`), run `npm 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `TREASURIX_API_KEY` | Yes (typical) | Secret key from the Treasurix dashboard — must start with `trx_live_`. |
-| `TREASURIX_ORIGIN` | No* | Origin where Treasurix serves **`/api/checkout`** (scheme + host, no trailing path). **Owner / DevOps** sets this once per deployment so application code only needs `apiKey`. Defaults to `http://localhost:3000` for local Treasurix. |
+| `TREASURIX_ORIGIN` | No | Origin where Treasurix serves **`/api/checkout`** (scheme + host, no trailing path). **Omit** to use the hosted app (`https://treasurix.vercel.app`) — application code can pass **only `apiKey`**. Set to `http://localhost:3000` when your merchant server should call a **local** Treasurix instance. |
 | `TREASURIX_BASE_URL` | No | Legacy alias for `TREASURIX_ORIGIN`. |
-
-\*In production you should set `TREASURIX_ORIGIN` (or pass `treasurixOrigin` in the constructor) unless Treasurix runs on `localhost:3000`.
 
 ### Where pay links point
 
@@ -88,7 +86,7 @@ import { TreasurixCheckoutClient } from "treasurix-checkout-sdk";
 
 const client = new TreasurixCheckoutClient({
   apiKey: process.env.TREASURIX_API_KEY!,
-  // treasurixOrigin: optional — defaults from TREASURIX_ORIGIN / TREASURIX_BASE_URL / http://localhost:3000
+  // treasurixOrigin: optional — defaults to https://treasurix.vercel.app, or TREASURIX_ORIGIN / TREASURIX_BASE_URL
 });
 
 const session = await client.createCheckoutSession({

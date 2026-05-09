@@ -129,7 +129,7 @@ Open [http://localhost:3000](http://localhost:3000).
 Server-side integration uses **`treasurix-checkout-sdk`** with:
 
 - `TREASURIX_API_KEY` — dashboard **Developers → API keys** (`trx_live_…`)
-- `TREASURIX_ORIGIN` (or legacy `TREASURIX_BASE_URL`) — origin where **this** Treasurix app serves `/api/checkout` (often the same host as `NEXT_PUBLIC_APP_URL`). With this set on the merchant server, SDK code can pass only `apiKey`.
+- `TREASURIX_ORIGIN` (or legacy `TREASURIX_BASE_URL`) — optional on the merchant server; the SDK defaults to **`https://treasurix.vercel.app`**. Set this when the merchant backend should call **this** app or another origin for `/api/checkout` (e.g. `http://localhost:3000` during local Treasurix development).
 - Optional **public checkout URL** per key in the dashboard — where `/pay/…` links open for that key (the SDK reads it from `/api/checkout/sdk-config`).
 
 Docs: [`packages/treasurix-checkout-sdk/README.md`](../packages/treasurix-checkout-sdk/README.md).
